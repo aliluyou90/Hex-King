@@ -1,11 +1,13 @@
 #ifndef HEX_H
 #define HEX_H
-
-
-class Hex
+#include <QGraphicsPolygonItem>
+#include <QBrush>
+class Hex: public QGraphicsPolygonItem
 {
 public:
-    Hex();
+    Hex(QGraphicsItem* parent = NULL);
+    //event
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif // HEX_H

@@ -24,8 +24,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+    game.cpp \
+    hex.cpp \
+    hexboard.cpp \
+    button.cpp \
+    card.cpp \
+    score.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    game.h \
+    hex.h \
+    hexboard.h \
+    button.h \
+    card.h \
+    score.h
 
-FORMS    += mainwindow.ui
+FORMS    +=
