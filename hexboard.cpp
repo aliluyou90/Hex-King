@@ -25,7 +25,7 @@ void HexBoard::createHexColumn(int x, int y, int RowsNum)
 {
    // create a col of Hexes
     for(size_t i =0;i<RowsNum;++i){
-        Hex* hex = new Hex();
+        auto* hex = new Hex();
 
         hex->setPos(x,y+70*i);
         hexes.append(hex);

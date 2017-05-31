@@ -6,6 +6,7 @@ class Card : public Hex
 {
 public:
     Card(QGraphicsItem* parent = NULL);
+    Card(Card* card);
     virtual void NeighbourDetection();
     void switchOwner();
     void captureNeignbor();
@@ -26,6 +27,8 @@ private:
     int sideNum[6];
     QList<QGraphicsTextItem*> attackText;
     QLineF q;
+public:
+
     QList<std::pair<int,Card*>> neighbours;
 
 };

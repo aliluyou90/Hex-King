@@ -1,6 +1,8 @@
 #include "game.h"
 #include "button.h"
 #include <QDebug>
+
+
 Game::Game(QWidget * parent) : QGraphicsView(parent)
 {
  // set up screen
@@ -13,7 +15,7 @@ Game::Game(QWidget * parent) : QGraphicsView(parent)
     setBackgroundBrush(QColor(205, 170, 125));
     setScene(scene);
     cardHolded = nullptr;
-
+    robot = new Robot();
 
 }
 
@@ -38,7 +40,7 @@ void Game::mainMenu()
     title->setPos(txPos,tyPos);
     scene->addItem(title);
 
-    Button* playButton = new Button(QString("Start"));
+    auto* playButton = new Button(QString("Start"));
 
     int pbxPos = this->width()/2-playButton->boundingRect().width()/2;
     int pbyPos = 300;
@@ -46,9 +48,9 @@ void Game::mainMenu()
     connect(playButton,SIGNAL(clicked()),this,SLOT(startGame()));
     scene->addItem(playButton);
 
-    Button* quitButton = new Button(QString("Quit"));
+    auto* quitButton = new Button(QString("Quit"));
     int qbxPos = this->width()/2-quitButton->boundingRect().width()/2;
-    int qbyPos = 400;
+    auto qbyPos = 400;
     quitButton->setPos(qbxPos,qbyPos);
     connect(quitButton,SIGNAL(clicked()),this,SLOT(close()));
     scene->addItem(quitButton);
@@ -112,8 +114,8 @@ void Game::placeCard(Hex *hexToReplace)
     if(!player2Cards.size()){
         initCards("PLAYER2");
     }
-   // createNewCard(getWhosTurn());//(to do) consider to create cards when all 5 used
     switchTurn();
+
 }
 
 void Game::gameover()
@@ -124,11 +126,11 @@ void Game::gameover()
     }
     createPanle(0,0,1024,768,Qt::black,0.65);
     createPanle(312,184,400,400,Qt::lightGray,0.75);
-    Button* playAgain = new Button(QString("Restart"));
+    auto* playAgain = new Button(QString("Restart"));
     playAgain->setPos(410,300);
     scene->addItem(playAgain);
     connect(playAgain,SIGNAL(clicked()),this,SLOT(restart()));
-    Button* quitButton = new Button(QString("Quit"));
+    auto* quitButton = new Button(QString("Quit"));
     quitButton->setPos(410,375);
     connect(quitButton,SIGNAL(clicked()),this,SLOT(close()));
     scene->addItem(quitButton);
@@ -142,10 +144,10 @@ void Game::gameover()
     }else{
         message = QString("Tie Game!");
     }
-    QGraphicsTextItem * p1 = new QGraphicsTextItem(message);
+    auto * p1 = new QGraphicsTextItem(message);
     QFont titleFont("comic sans",15);
     p1->setFont(titleFont);
-    p1->setPos(410,280);
+    p1->setPos(1024/2-p1->boundingRect().width()/2,250);
     scene->addItem(p1);
 }
 
@@ -154,6 +156,8 @@ void Game::switchTurn()
 {
     if(getWhosTurn() == QString("PLAYER1")){
         setWhosTurn(QString("PLAYER2"));
+
+        robot->easyMove();
     }else{
         setWhosTurn(QString("PLAYER1"));
     }
@@ -181,7 +185,7 @@ void Game::restart()
 
 void Game::createNewCard(QString player)
 {
-    Card* card = new Card();
+    auto* card = new Card();
     card->setOwner(player);
     card->setOnBoard(false);
 
@@ -211,13 +215,13 @@ void Game::initCards(QString name)
     }
     if ( QString("PLAYER1") == name)     {
         for (size_t i = 0, n = player1Cards.size(); i<n ;++i){
-            Hex* card = player1Cards[i];
+            auto* card = player1Cards[i];
             card->setPos(13,250+75*i);
             scene->addItem(card);
         }
     }else{
         for (size_t i = 0, n = player2Cards.size(); i<n ;++i){
-            Hex* card = player2Cards[i];
+            auto* card = player2Cards[i];
             card->setPos(13+874,250+75*i);
             scene->addItem(card);
         }
@@ -228,12 +232,12 @@ void Game::initCards(QString name)
 void Game::creatInterface()
 {
 
-   QGraphicsTextItem * p1 = new QGraphicsTextItem(QString("Player 1"));
+   auto * p1 = new QGraphicsTextItem(QString("Player 1"));
    QFont titleFont("comic sans",30);
    p1->setFont(titleFont);
    p1->setPos(10,0);
    scene->addItem(p1);
-   QGraphicsTextItem * p2 = new QGraphicsTextItem(QString("Player 2"));
+   auto * p2 = new QGraphicsTextItem(QString("Player 2"));
    p2->setFont(titleFont);
    p2->setPos(834,0);
    scene->addItem(p2);
@@ -259,7 +263,7 @@ void Game::creatInterface()
 void Game::createPanle(int x, int y, int width, int height, QColor color, double opacity)
 {
     //draw
-    QGraphicsRectItem* panel = new QGraphicsRectItem (x,y,width,height);
+    auto* panel = new QGraphicsRectItem (x,y,width,height);
     QBrush brush;
     brush.setStyle(Qt::SolidPattern);
     brush.setColor(color);

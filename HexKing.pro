@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     hexboard.cpp \
     button.cpp \
     card.cpp \
-    score.cpp
+    score.cpp \
+    robot.cpp
 
 HEADERS  += \
     game.h \
@@ -37,6 +38,7 @@ HEADERS  += \
     hexboard.h \
     button.h \
     card.h \
-    score.h
+    score.h \
+    robot.h
 
 FORMS    +=

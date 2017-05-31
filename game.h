@@ -8,6 +8,7 @@
 #include <time.h> // time
 #include "card.h"
 #include "score.h"
+#include "robot.h"
 class Game : public QGraphicsView
 {
     Q_OBJECT
@@ -19,6 +20,10 @@ public:
     QPointF originalPos;
     Score *SC1;
     Score *SC2;
+    QList<Card*> player2Cards;
+    Robot *robot;
+
+
 //methods
     QGraphicsScene * scene;
     inline QString getWhosTurn(){return whosTurn;}
@@ -35,7 +40,7 @@ public slots:
 private:
     //cards
     QList<Card*> player1Cards;
-    QList<Card*> player2Cards;
+
     void createNewCard(QString player);
     void initCards(QString name);
 

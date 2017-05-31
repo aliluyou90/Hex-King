@@ -22,7 +22,23 @@ Card::Card(QGraphicsItem *parent): Hex(parent)
     }
     QPointF center(this->pos().x()+60,this->pos().y()+40);
     QPointF endP(center.x(),center.y()-65);
-     q = QLineF(center,endP);
+    q = QLineF(center,endP);
+}
+
+Card::Card(Card *card)
+{
+   QPointF sideNumLoc[6] = {QPointF(42,0),QPointF(15,7),QPointF(15,30),
+                                 QPointF(42,45),QPointF(70,30),QPointF(70,7)};
+    isOnBoard = card->isOnBoard;
+    owner = card->owner;
+    attackText = card->attackText;
+    q = card->q;
+
+    for (size_t i =0; i<6; ++i){
+        sideNum[i] = card->sideNum[i];
+    }
+
+
 }
 
 
@@ -38,7 +54,7 @@ void Card::NeighbourDetection()
          QList<QGraphicsItem*> cItems = D.collidingItems();
          for(size_t j =0, n = cItems.size(); j<n; ++j){
 
-             Card* Item = dynamic_cast<Card*>(cItems[j]);
+             auto* Item = dynamic_cast<Card*>(cItems[j]);
              if( Item && cItems[j]!=this){
                  neighbours.append(std::make_pair(i,Item));
 
@@ -94,6 +110,7 @@ void Card::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if(getOnBoard() == false){
         game->pickUpCard(this);
     }
+  //  mousePressEvent(event);
 }
 
 void Card::setOwner(QString onwer)

@@ -7,8 +7,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     srand(time(NULL));
     game = new Game();
-
     game->mainMenu();
-game->show();
+    game->show();
     return a.exec();
 }
