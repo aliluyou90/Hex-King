@@ -110,8 +110,21 @@ void Card::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if(getOnBoard() == false){
         game->pickUpCard(this);
     }
-  //  mousePressEvent(event);
+    //  mousePressEvent(event);
 }
+
+QString Card::getCardString()
+{
+    QString string  ;
+
+    for (size_t i =0; i < 6 ; i++){
+        string.append(QString::number(sideNum[i]));
+    }
+    string.append('%');
+    return string;
+}
+
+
 
 void Card::setOwner(QString onwer)
 {
@@ -134,4 +147,5 @@ void Card::setSideNum(int side, int num)
     sideNum[side]  = num;
     attackText[side]->setPlainText(QString::number(num));
 }
+
 

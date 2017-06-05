@@ -7,11 +7,13 @@ class Card : public Hex
 public:
     Card(QGraphicsItem* parent = NULL);
     Card(Card* card);
+
     virtual void NeighbourDetection();
     void switchOwner();
     void captureNeignbor();
     void showSideNum();
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    QString getCardString();
     //Modifier
     void setOwner(QString onwer);
     inline void setOnBoard(bool state){isOnBoard = state;}
@@ -30,6 +32,8 @@ private:
 public:
 
     QList<std::pair<int,Card*>> neighbours;
+
+
 
 };
 

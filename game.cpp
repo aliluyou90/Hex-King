@@ -1,8 +1,8 @@
 #include "game.h"
 #include "button.h"
 #include <QDebug>
-
-
+#include <QTextEdit>
+#include <QLineEdit>
 Game::Game(QWidget * parent) : QGraphicsView(parent)
 {
  // set up screen
@@ -15,7 +15,9 @@ Game::Game(QWidget * parent) : QGraphicsView(parent)
     setBackgroundBrush(QColor(205, 170, 125));
     setScene(scene);
     cardHolded = nullptr;
-    robot = new Robot();
+    robot = nullptr;
+    server = nullptr;
+    client = nullptr;
 
 }
 
@@ -36,21 +38,43 @@ void Game::mainMenu()
     QFont titleFont("comic sans",60);
     title->setFont(titleFont);
     int txPos = this->width()/2-title->boundingRect().width()/2;
-    int tyPos = 150;
+    int tyPos = 100;
     title->setPos(txPos,tyPos);
     scene->addItem(title);
 
-    auto* playButton = new Button(QString("Start"));
 
-    int pbxPos = this->width()/2-playButton->boundingRect().width()/2;
-    int pbyPos = 300;
-    playButton->setPos(pbxPos,pbyPos);
-    connect(playButton,SIGNAL(clicked()),this,SLOT(startGame()));
-    scene->addItem(playButton);
+
+    auto* robotPlayButton = new Button(QString("Play with Robot"));
+    int prxPos = this->width()/2-robotPlayButton->boundingRect().width()/2;
+    int pryPos = 250;
+    robotPlayButton->setPos(prxPos,pryPos);
+    connect(robotPlayButton,SIGNAL(clicked()),this,SLOT(robotStartGame()));
+    scene->addItem(robotPlayButton);
+
+    auto* hostButton = new Button(QString("Host Game"));
+    int phxPos = this->width()/2-hostButton->boundingRect().width()/2;
+    int phyPos = 330;
+    hostButton->setPos(phxPos,phyPos);
+    connect(hostButton,SIGNAL(clicked()),this,SLOT(hostStartGame()));
+    scene->addItem(hostButton);
+
+    auto* joinButton = new Button(QString("Join Game"));
+    int pjxPos = this->width()/2-joinButton->boundingRect().width()/2;
+    int pjyPos = 410;
+    joinButton->setPos(pjxPos,pjyPos);
+    connect(joinButton,SIGNAL(clicked()),this,SLOT(joinGame()));
+    scene->addItem(joinButton);
+
+    auto* selfPlayButton = new Button(QString("Start"));
+    int pbxPos = this->width()/2-selfPlayButton->boundingRect().width()/2;
+    int pbyPos = 490;
+    selfPlayButton->setPos(pbxPos,pbyPos);
+    connect(selfPlayButton,SIGNAL(clicked()),this,SLOT(startGame()));
+    scene->addItem(selfPlayButton);
 
     auto* quitButton = new Button(QString("Quit"));
     int qbxPos = this->width()/2-quitButton->boundingRect().width()/2;
-    auto qbyPos = 400;
+    auto qbyPos = 570;
     quitButton->setPos(qbxPos,qbyPos);
     connect(quitButton,SIGNAL(clicked()),this,SLOT(close()));
     scene->addItem(quitButton);
@@ -61,7 +85,7 @@ void Game::mainMenu()
 void Game::pickUpCard(Card *card)
 {
     //pick up the specified card
-    if (card->getOwner() == getWhosTurn() && cardHolded == nullptr){
+    if (card->getOwner() == getWhosTurn()&& QString("PLAYER1")==getWhosTurn() && cardHolded == nullptr){
         cardHolded = card;
         originalPos = card->pos();
         return;
@@ -93,10 +117,23 @@ void Game::mousePressEvent(QMouseEvent *event)
 void Game::placeCard(Hex *hexToReplace)
 {
 // a card replaces a hex;
+    if(server || client){
+    if (getWhosTurn() == "PLAYER1"){
+    decision.append("Dec%");
+    decision.append(QString::number(player1Cards.indexOf(cardHolded))+"%");
+    decision.append(QString::number(hexboard->hexes.indexOf(hexToReplace)));
+    emit decisionMade();
+    }
+    }
     cardHolded->setPos(hexToReplace->pos());
     cardHolded->setOnBoard(true);
     cardHolded->NeighbourDetection();
     cardHolded->captureNeignbor();
+
+
+
+
+
     removeFromDeck(cardHolded,getWhosTurn());
     cardHolded = nullptr;
 // remove the hex from the scene and board
@@ -105,6 +142,7 @@ void Game::placeCard(Hex *hexToReplace)
 // game over when no hex left
     if (hexboard->hexes.size() ==0){
          gameover();
+         emit cardInited();
          return;
      }
 // continue  switch round
@@ -114,6 +152,8 @@ void Game::placeCard(Hex *hexToReplace)
     if(!player2Cards.size()){
         initCards("PLAYER2");
     }
+
+
     switchTurn();
 
 }
@@ -156,8 +196,9 @@ void Game::switchTurn()
 {
     if(getWhosTurn() == QString("PLAYER1")){
         setWhosTurn(QString("PLAYER2"));
+        if(robot){
+        robot->easyMove();}
 
-        robot->easyMove();
     }else{
         setWhosTurn(QString("PLAYER1"));
     }
@@ -170,9 +211,23 @@ void Game::startGame()
    hexboard->placeHex(240,30,7,7);
 
    creatInterface();
-
+   if(!client){
    initCards(QString("PLAYER1"));
    initCards(QString("PLAYER2"));
+    }
+   }
+
+void Game::hostStartGame()
+{
+    server = new GameServer();
+    server->startServer();
+
+}
+
+void Game::robotStartGame()
+{
+    robot = new Robot();
+    startGame();
 }
 
 void Game::restart()
@@ -183,7 +238,40 @@ void Game::restart()
     startGame();
 }
 
-void Game::createNewCard(QString player)
+void Game::backToManu()
+{
+    if (client){
+
+        client->close();
+        delete client;
+        client = nullptr;
+
+    }
+    if(server){
+        server->close();
+        delete server;
+        server = nullptr;
+    }
+    player1Cards.clear();
+    player2Cards.clear();
+    if(cardHolded){
+    delete cardHolded;
+    cardHolded = nullptr;
+}
+    scene->clear();
+    mainMenu();
+}
+
+void Game::joinGame()
+{
+
+    client = new Client();
+    scene->clear();
+    client->show();
+
+}
+
+void Game::createNewCard(QString player )
 {
     auto* card = new Card();
     card->setOwner(player);
@@ -194,17 +282,29 @@ void Game::createNewCard(QString player)
         int randNum = rand() %6 + 1; // always same number
         card->setSideNum(i,randNum);
     }
-
-
     card->showSideNum();
     if (player == QString("PLAYER1"))
         player1Cards.append(card);
     else
         player2Cards.append(card);
+}
 
-    // draw the card to scene
+void Game::createNewCard(QString player, QByteArray data)
+{
+    auto* card = new Card();
+    card->setOwner(player);
+    card->setOnBoard(false);
 
+    for (int i =0; i<6; ++i){
 
+        int randNum = data.at(i) - '0'; // always same number
+        card->setSideNum(i,randNum);
+    }
+    card->showSideNum();
+    if (player == QString("PLAYER1"))
+        player1Cards.append(card);
+    else
+        player2Cards.append(card);
 }
 
 void Game::initCards(QString name)
@@ -225,9 +325,9 @@ void Game::initCards(QString name)
             card->setPos(13+874,250+75*i);
             scene->addItem(card);
         }
-
     }
 }
+
 
 void Game::creatInterface()
 {
@@ -241,6 +341,11 @@ void Game::creatInterface()
    p2->setFont(titleFont);
    p2->setPos(834,0);
    scene->addItem(p2);
+
+   auto* backButton = new Button(QString("Quit"));
+   backButton->setPos(800,670);
+   connect(backButton,SIGNAL(clicked()),this,SLOT(backToManu()));
+   scene->addItem(backButton);
 
    SC1 = new Score();
    SC1->setFont(titleFont);

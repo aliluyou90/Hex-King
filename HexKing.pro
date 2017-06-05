@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-
+QT       += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = HexKing
@@ -30,7 +30,9 @@ SOURCES += main.cpp\
     button.cpp \
     card.cpp \
     score.cpp \
-    robot.cpp
+    robot.cpp \
+    gameserver.cpp \
+    client.cpp
 
 HEADERS  += \
     game.h \
@@ -39,6 +41,9 @@ HEADERS  += \
     button.h \
     card.h \
     score.h \
-    robot.h
+    robot.h \
+    gameserver.h \
+    client.h
 
-FORMS    +=
+FORMS    += \
+    client.ui

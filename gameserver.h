@@ -1,12 +1,29 @@
 #ifndef GAMESERVER_H
 #define GAMESERVER_H
-
 #include <QObject>
+#include <QTcpServer>
 
-class GameServer
+
+class GameServer : public QTcpServer
 {
+    Q_OBJECT
+
 public:
-    GameServer();
+    GameServer(QObject *parent =0);
+    void startServer();
+    void enemyMove(QList<QByteArray> &data);
+private slots:
+
+    void readyRead();
+    void disconnected();
+    void sendInitedCard();
+    void sendMove();
+protected:
+    void incomingConnection(qintptr socketfd);
+
+private:
+    QTcpSocket* client;
 };
+
 
 #endif // GAMESERVER_H
