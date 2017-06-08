@@ -27,6 +27,8 @@ private slots:
 
     void on_sendButton_clicked();
 
+    void on_backButton_clicked();
+
 private:
     Ui::Client *ui;
 };

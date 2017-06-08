@@ -21,6 +21,7 @@ Client::Client(QWidget *parent) :
 Client::~Client()
 {
     delete ui;
+    qDebug() << "client destructed";
 }
 
 void Client::clientInitGame(QList<QByteArray> &data)
@@ -150,4 +151,9 @@ void Client::on_sendButton_clicked()
     // Put the focus back into the input box so they can type again:
      ui->textMessage->setFocus();
 
+}
+
+void Client::on_backButton_clicked()
+{
+    game->backToManu();
 }

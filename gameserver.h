@@ -10,6 +10,7 @@ class GameServer : public QTcpServer
 
 public:
     GameServer(QObject *parent =0);
+    ~GameServer();
     void startServer();
     void enemyMove(QList<QByteArray> &data);
 private slots:

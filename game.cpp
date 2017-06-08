@@ -146,13 +146,23 @@ void Game::placeCard(Hex *hexToReplace)
          return;
      }
 // continue  switch round
+    if(!client){
+    QByteArray data;
     if(!player1Cards.size()){
         initCards("PLAYER1");
-    }
-    if(!player2Cards.size()){
+        data.append("PLAYER1");
+        for (int i =0, n = player1Cards.size();i<n ; i++){
+            data.append( player1Cards[i]->getCardString());
+        }
+    }else if(!player2Cards.size()){
         initCards("PLAYER2");
-    }
+        data.append("PLAYER2");
+        for (int i =0, n = player1Cards.size();i<n ; i++){
+            data.append( player1Cards[i]->getCardString());
+        }
 
+    }
+}
 
     switchTurn();
 

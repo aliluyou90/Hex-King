@@ -2,21 +2,53 @@
 #include <QDebug>
 #include <QTcpSocket>
 #include "game.h"
+#include <QNetworkInterface>
+#include <QHostInfo>
 extern Game* game;
 GameServer::GameServer(QObject *parent):QTcpServer(parent)
 {
     connect(game,SIGNAL(cardInited()),this,SLOT(sendInitedCard()));
     connect(game,SIGNAL(decisionMade()),this,SLOT(sendMove()));
+
+}
+
+GameServer::~GameServer()
+{
+    qDebug()<< "Server destructed";
 }
 
 void GameServer::startServer()
 {
-    if(!this->listen(QHostAddress::Any, 1234))
+    if(!this->listen(QHostAddress::AnyIPv4, 1234))
     {
         qDebug() << "Cannot start the server";
     }else{
         qDebug() << "server started";
+        QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
+          QHostAddress address = info.addresses().at(this->serverAddress().AnyIPv4);
+          //第一个IP地址；
+          qDebug() << address ;
     }
+
+
+
+/*
+    QString detail="";
+        QList<QNetworkInterface> list=QNetworkInterface::allInterfaces();
+        for(int i=0;i<list.count();i++)
+        {
+            QNetworkInterface interface=list.at(i);
+            detail=detail+tr("")+interface.name()+"\n";
+            QList<QNetworkAddressEntry> entryList=interface.addressEntries();
+            for(int j=0;j<entryList.count();j++)
+            {
+                QNetworkAddressEntry entry=entryList.at(j);
+                detail=detail+"\t"+tr("IP")+entry.ip().toString()+"\n";
+            }
+        }
+        qDebug() << detail ;
+        */
+
 }
 
 void GameServer::enemyMove(QList<QByteArray> &data)
