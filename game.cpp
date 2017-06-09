@@ -85,7 +85,13 @@ void Game::mainMenu()
 void Game::pickUpCard(Card *card)
 {
     //pick up the specified card
-    if (card->getOwner() == getWhosTurn()&& QString("PLAYER1")==getWhosTurn() && cardHolded == nullptr){
+    QString player;
+    if (client){
+        player = "PLAYER2";
+    }else{
+         player = "PLAYER1";
+    }
+    if (card->getOwner() == getWhosTurn()&& player==getWhosTurn() && cardHolded == nullptr){
         cardHolded = card;
         originalPos = card->pos();
         return;
@@ -117,23 +123,24 @@ void Game::mousePressEvent(QMouseEvent *event)
 void Game::placeCard(Hex *hexToReplace)
 {
 // a card replaces a hex;
-    if(server || client){
-    if (getWhosTurn() == "PLAYER1"){
-    decision.append("Dec%");
-    decision.append(QString::number(player1Cards.indexOf(cardHolded))+"%");
-    decision.append(QString::number(hexboard->hexes.indexOf(hexToReplace)));
+
+    if(server && getWhosTurn() == "PLAYER1"){
+
+        decision.append("Dec%");
+        decision.append(QString::number(player1Cards.indexOf(cardHolded))+"%");
+        decision.append(QString::number(hexboard->hexes.indexOf(hexToReplace)));
+       }else if ( getWhosTurn() == "PLAYER2" && client)
+    {
+        decision.append("Dec%");
+        decision.append(QString::number(player2Cards.indexOf(cardHolded))+"%");
+        decision.append(QString::number(hexboard->hexes.indexOf(hexToReplace)));
+    }
     emit decisionMade();
-    }
-    }
+
     cardHolded->setPos(hexToReplace->pos());
     cardHolded->setOnBoard(true);
     cardHolded->NeighbourDetection();
     cardHolded->captureNeignbor();
-
-
-
-
-
     removeFromDeck(cardHolded,getWhosTurn());
     cardHolded = nullptr;
 // remove the hex from the scene and board
@@ -146,26 +153,14 @@ void Game::placeCard(Hex *hexToReplace)
          return;
      }
 // continue  switch round
-    if(!client){
-    QByteArray data;
+
     if(!player1Cards.size()){
         initCards("PLAYER1");
-        data.append("PLAYER1");
-        for (int i =0, n = player1Cards.size();i<n ; i++){
-            data.append( player1Cards[i]->getCardString());
-        }
     }else if(!player2Cards.size()){
         initCards("PLAYER2");
-        data.append("PLAYER2");
-        for (int i =0, n = player1Cards.size();i<n ; i++){
-            data.append( player1Cards[i]->getCardString());
+
         }
-
-    }
-}
-
     switchTurn();
-
 }
 
 void Game::gameover()
@@ -216,19 +211,22 @@ void Game::switchTurn()
 
 void Game::startGame()
 {
+   setSeed(time(NULL));
+   srand(randSeed);
    scene->clear();
    hexboard = new HexBoard();
    hexboard->placeHex(240,30,7,7);
 
    creatInterface();
-   if(!client){
+
    initCards(QString("PLAYER1"));
    initCards(QString("PLAYER2"));
-    }
-   }
+}
+
 
 void Game::hostStartGame()
 {
+
     server = new GameServer();
     server->startServer();
 
@@ -251,14 +249,12 @@ void Game::restart()
 void Game::backToManu()
 {
     if (client){
-
-        client->close();
-        delete client;
+        client->deleteLater();
         client = nullptr;
-
     }
     if(server){
-        server->close();
+        //server->close();
+        server->clientdisconnect();
         delete server;
         server = nullptr;
     }
@@ -299,23 +295,7 @@ void Game::createNewCard(QString player )
         player2Cards.append(card);
 }
 
-void Game::createNewCard(QString player, QByteArray data)
-{
-    auto* card = new Card();
-    card->setOwner(player);
-    card->setOnBoard(false);
 
-    for (int i =0; i<6; ++i){
-
-        int randNum = data.at(i) - '0'; // always same number
-        card->setSideNum(i,randNum);
-    }
-    card->showSideNum();
-    if (player == QString("PLAYER1"))
-        player1Cards.append(card);
-    else
-        player2Cards.append(card);
-}
 
 void Game::initCards(QString name)
 {

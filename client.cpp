@@ -26,40 +26,25 @@ Client::~Client()
 
 void Client::clientInitGame(QList<QByteArray> &data)
 {
+
+    int seed = data[0].toInt();
+    game->setSeed(seed);
     game->startGame();
-    game->setWhosTurn("PLAYER2");
-    for (int i =0 ; i < 5 ;++ i){
-        game->createNewCard("PLAYER1",data.at(0));
-        data.removeFirst();
-        auto* card = game->player1Cards[i];
-        card->setPos(13,250+75*i);
-        game->scene->addItem(card);
-    }
-    for (int i =0 ; i < 5 ;++ i){
-        game->createNewCard("PLAYER2",data.at(0));
-        data.removeFirst();
-        auto* card = game->player2Cards[i];
-        card->setPos(13+874,250+75*i);
-        game->scene->addItem(card);
-    }
 
 
 }
 
 void Client::enemyMove(QList<QByteArray> &data)
 {
-    game->cardHolded = game->player2Cards[int(data[0][0]-'0')];
-    if (data[1].size() == 2){
-    game->placeCard(game->hexboard->hexes[int(data[1][0]-'0')*10+int(data[1][1]-'0')]);
-    }else{
-        game->placeCard(game->hexboard->hexes[int(data[1][0]-'0')]);
-    }
+    game->cardHolded = game->player1Cards[data[0].toInt()];
+
+    game->placeCard(game->hexboard->hexes[data[1].toInt()]);
+
 }
 
 void Client::disconnected()
 {
    qDebug()<< "disconnected by server!";
-    deleteLater();
     game->backToManu();
 
 }

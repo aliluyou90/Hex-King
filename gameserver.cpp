@@ -62,6 +62,11 @@ void GameServer::enemyMove(QList<QByteArray> &data)
 
 }
 
+void GameServer::clientdisconnect()
+{
+    client->disconnectFromHost();
+}
+
 
 void GameServer::readyRead()
 {
@@ -138,12 +143,8 @@ void GameServer::incomingConnection(qintptr socketfd)
     game->startGame();
     QByteArray data;
     data.append("Init%");// "1" is cardinfo data identifier
-    for (int i =0, n = game->player2Cards.size();i<n ; i++){
-        data.append( game->player2Cards[i]->getCardString());
-    }
-    for (int i =0, n = game->player1Cards.size();i<n ; i++){
-        data.append( game->player1Cards[i]->getCardString());
-    }
+    data.append(game->getSeed());
+    qDebug()<< data;
     client->write(data);
     client->waitForBytesWritten();
 

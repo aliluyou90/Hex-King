@@ -28,6 +28,7 @@ public:
     GameServer *server;
     Client * client;
     QByteArray decision;
+
 //methods
     QGraphicsScene * scene;
     inline QString getWhosTurn(){return whosTurn;}
@@ -39,7 +40,9 @@ public:
     void placeCard(Hex *hexToReplace);
     void gameover();
     void createNewCard(QString player);
-    void createNewCard(QString player, QByteArray data);
+
+    inline QString getSeed(){return QString::number(randSeed);}
+    inline void setSeed(int seed){randSeed = seed;}
 public slots:
     void startGame();
     void hostStartGame();
@@ -47,6 +50,7 @@ public slots:
     void restart();
     void backToManu();
     void joinGame();
+
 signals:
     void cardInited();
     void decisionMade();
@@ -54,7 +58,7 @@ private:
     //cards
 
 
-
+    size_t randSeed;
     void initCards(QString name);
 
 

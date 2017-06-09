@@ -13,6 +13,7 @@ public:
     ~GameServer();
     void startServer();
     void enemyMove(QList<QByteArray> &data);
+    void clientdisconnect();
 private slots:
 
     void readyRead();
