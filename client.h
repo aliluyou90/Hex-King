@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QTcpSocket>
+#include "chat.h"
 namespace Ui {
 class Client;
 }
@@ -20,6 +21,7 @@ private slots:
     void disconnected();
     void readyRead();
     void sendMove();
+    void sendChat();
 private slots:
     void displayError ( QAbstractSocket::SocketError socketError );
 

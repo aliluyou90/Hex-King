@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Chat</class>
+ <widget class="QDialog" name="Chat">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>382</width>
+    <height>134</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLineEdit" name="sendLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>110</y>
+     <width>301</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="receiveTextBrowser">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>381</width>
+     <height>111</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="sendButton">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>110</y>
+     <width>80</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Send</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include "game.h"
+
 extern Game* game;
 Client::Client(QWidget *parent) :
     QDialog(parent),
@@ -16,22 +17,19 @@ Client::Client(QWidget *parent) :
     ui->textPort->setText("1234");
     setAttribute(Qt::WA_TranslucentBackground);
     connect(game,SIGNAL(decisionMade()),this,SLOT(sendMove()));
+  //  connect(game->chat,SIGNAL(readySend()),this,SLOT(sendChat()));
 }
 
 Client::~Client()
 {
     delete ui;
-    qDebug() << "client destructed";
 }
 
 void Client::clientInitGame(QList<QByteArray> &data)
 {
-
     int seed = data[0].toInt();
     game->setSeed(seed);
     game->startGame();
-
-
 }
 
 void Client::enemyMove(QList<QByteArray> &data)
@@ -45,7 +43,7 @@ void Client::enemyMove(QList<QByteArray> &data)
 void Client::disconnected()
 {
    qDebug()<< "disconnected by server!";
-    game->backToManu();
+   game->backToManu();
 
 }
 
@@ -63,8 +61,10 @@ void Client::readyRead()
         qDebug()<< "enemy move";
         dataPackage.removeFirst();
         enemyMove(dataPackage);
+    }else if(dataPackage[0]=="Msg")
+    {
+        game->chat->messageReceived(dataPackage[1]);
     }
-
     else{
         qDebug() << rawData;
     }
@@ -80,6 +80,13 @@ void Client::sendMove()
     m_pClientsocket->waitForBytesWritten();
     game->decision.clear();
 
+}
+
+void Client::sendChat()
+{
+    m_pClientsocket->write(game->chat->dataSend);
+    m_pClientsocket->waitForBytesWritten();
+    game->chat->dataSend.clear();
 }
 
 

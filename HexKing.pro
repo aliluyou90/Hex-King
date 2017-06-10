@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     score.cpp \
     robot.cpp \
     gameserver.cpp \
-    client.cpp
+    client.cpp \
+    chat.cpp
 
 HEADERS  += \
     game.h \
@@ -43,7 +44,9 @@ HEADERS  += \
     score.h \
     robot.h \
     gameserver.h \
-    client.h
+    client.h \
+    chat.h
 
 FORMS    += \
-    client.ui
+    client.ui \
+    chat.ui

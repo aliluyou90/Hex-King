@@ -15,11 +15,10 @@ public:
     void enemyMove(QList<QByteArray> &data);
     void clientdisconnect();
 private slots:
-
     void readyRead();
     void disconnected();
-    void sendInitedCard();
     void sendMove();
+    void sendChat();
 protected:
     void incomingConnection(qintptr socketfd);
 

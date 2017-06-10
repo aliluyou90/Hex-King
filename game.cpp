@@ -1,8 +1,7 @@
 #include "game.h"
 #include "button.h"
 #include <QDebug>
-#include <QTextEdit>
-#include <QLineEdit>
+#include "chat.h"
 Game::Game(QWidget * parent) : QGraphicsView(parent)
 {
  // set up screen
@@ -18,7 +17,7 @@ Game::Game(QWidget * parent) : QGraphicsView(parent)
     robot = nullptr;
     server = nullptr;
     client = nullptr;
-
+    chat  = nullptr;
 }
 
 void Game::setWhosTurn(QString player)
@@ -149,7 +148,6 @@ void Game::placeCard(Hex *hexToReplace)
 // game over when no hex left
     if (hexboard->hexes.size() ==0){
          gameover();
-         emit cardInited();
          return;
      }
 // continue  switch round
@@ -211,9 +209,9 @@ void Game::switchTurn()
 
 void Game::startGame()
 {
-   setSeed(time(NULL));
-   srand(randSeed);
    scene->clear();
+   srand(randSeed);
+
    hexboard = new HexBoard();
    hexboard->placeHex(240,30,7,7);
 
@@ -249,22 +247,34 @@ void Game::restart()
 void Game::backToManu()
 {
     if (client){
+
         client->deleteLater();
         client = nullptr;
     }
+    if (robot){
+        delete robot;
+        robot = nullptr;
+    }
     if(server){
-        //server->close();
         server->clientdisconnect();
         delete server;
         server = nullptr;
     }
+
     player1Cards.clear();
     player2Cards.clear();
+
     if(cardHolded){
     delete cardHolded;
     cardHolded = nullptr;
+    }
+    if (chat){
+     chat->close();
+    // delete chat;
+    chat = nullptr;
 }
     scene->clear();
+
     mainMenu();
 }
 
@@ -306,13 +316,13 @@ void Game::initCards(QString name)
     if ( QString("PLAYER1") == name)     {
         for (size_t i = 0, n = player1Cards.size(); i<n ;++i){
             auto* card = player1Cards[i];
-            card->setPos(13,250+75*i);
+            card->setPos(13,200+75*i);
             scene->addItem(card);
         }
     }else{
         for (size_t i = 0, n = player2Cards.size(); i<n ;++i){
             auto* card = player2Cards[i];
-            card->setPos(13+874,250+75*i);
+            card->setPos(13+874,200+75*i);
             scene->addItem(card);
         }
     }
@@ -353,6 +363,18 @@ void Game::creatInterface()
    whosTurnText->setPos(420,0);
    scene->addItem(whosTurnText);
 
+   if (client){
+       chat = new Chat();
+       connect(chat,SIGNAL(readySend()),client,SLOT(sendChat()));
+       chat->move(0,768-chat->height());
+       scene->addWidget(chat);
+    }
+   if(server){
+       chat = new Chat();
+       connect(chat,SIGNAL(readySend()),server,SLOT(sendChat()));
+       chat->move(0,768-chat->height());
+       scene->addWidget(chat);
+  }
 }
 
 void Game::createPanle(int x, int y, int width, int height, QColor color, double opacity)

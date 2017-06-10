@@ -28,7 +28,7 @@ public:
     GameServer *server;
     Client * client;
     QByteArray decision;
-
+    Chat* chat;
 //methods
     QGraphicsScene * scene;
     inline QString getWhosTurn(){return whosTurn;}
@@ -52,16 +52,12 @@ public slots:
     void joinGame();
 
 signals:
-    void cardInited();
+
     void decisionMade();
 private:
     //cards
-
-
     size_t randSeed;
     void initCards(QString name);
-
-
     void removeFromDeck(Card* card,QString player);
     void switchTurn();
     //

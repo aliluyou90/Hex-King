@@ -7,14 +7,12 @@
 extern Game* game;
 GameServer::GameServer(QObject *parent):QTcpServer(parent)
 {
-    connect(game,SIGNAL(cardInited()),this,SLOT(sendInitedCard()));
     connect(game,SIGNAL(decisionMade()),this,SLOT(sendMove()));
-
+   // connect(game->chat,SIGNAL(readySend()),this,SLOT(sendChat()));
 }
 
 GameServer::~GameServer()
 {
-    qDebug()<< "Server destructed";
 }
 
 void GameServer::startServer()
@@ -26,29 +24,8 @@ void GameServer::startServer()
         qDebug() << "server started";
         QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
           QHostAddress address = info.addresses().at(this->serverAddress().AnyIPv4);
-          //第一个IP地址；
           qDebug() << address ;
     }
-
-
-
-/*
-    QString detail="";
-        QList<QNetworkInterface> list=QNetworkInterface::allInterfaces();
-        for(int i=0;i<list.count();i++)
-        {
-            QNetworkInterface interface=list.at(i);
-            detail=detail+tr("")+interface.name()+"\n";
-            QList<QNetworkAddressEntry> entryList=interface.addressEntries();
-            for(int j=0;j<entryList.count();j++)
-            {
-                QNetworkAddressEntry entry=entryList.at(j);
-                detail=detail+"\t"+tr("IP")+entry.ip().toString()+"\n";
-            }
-        }
-        qDebug() << detail ;
-        */
-
 }
 
 void GameServer::enemyMove(QList<QByteArray> &data)
@@ -77,8 +54,11 @@ void GameServer::readyRead()
         qDebug()<< "enemy move";
         dataPackage.removeFirst();
         enemyMove(dataPackage);
-    }
+    }else if(dataPackage[0]=="Msg")
+    {
+        game->chat->messageReceived(dataPackage[1]);
 
+    }
     else{
         qDebug() << rawData;
     }
@@ -94,26 +74,6 @@ void GameServer::disconnected()
 
 }
 
-void GameServer::sendInitedCard()
-{
-    QByteArray data;
-// problem! putting the length in the data to be sent!!!!!!
-    if(game->getWhosTurn() == "PLAYER1"){
-        data.append("P1%");
-        for (int i =0, n = game->player1Cards.size();i<n ; i++){
-            data.append( game->player1Cards[i]->getCardString());
-        }
-    }else{
-        data.append("P2%");
-        for (int i =0, n = game->player2Cards.size();i<n ; i++){
-            data.append( game->player2Cards[i]->getCardString());
-        }
-    }
-    client->write(data);
-    client->waitForBytesWritten();
-
-
-}
 
 void GameServer::sendMove()
 {
@@ -121,6 +81,13 @@ void GameServer::sendMove()
     client->waitForBytesWritten();
     game->decision.clear();
 
+}
+
+void GameServer::sendChat()
+{
+    client->write(game->chat->dataSend);
+    client->waitForBytesWritten();
+    game->chat->dataSend.clear();
 }
 
 
@@ -134,15 +101,12 @@ void GameServer::incomingConnection(qintptr socketfd)
         return;
     }
     qDebug() << "Connection from " << client->socketDescriptor();
-   // client->write("Hello client\r\n");
-  //  client->waitForBytesWritten(100);
-    //client->flush();
     connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
-
+    game->setSeed(time(NULL));
     game->startGame();
     QByteArray data;
-    data.append("Init%");// "1" is cardinfo data identifier
+    data.append("Init%");
     data.append(game->getSeed());
     qDebug()<< data;
     client->write(data);
